@@ -8,7 +8,11 @@ var fileCink = function(state, cfg){
     Step(
       // Make lock
       function (){
-        console.log('file updated: '+state);
+        console.log(['file updated: ',
+                    JSON.stringify(state['path']),
+                    ' ',
+                    JSON.stringify(curr['mtime'])].join('')
+        );
       }
       // Import file
       // Update status
