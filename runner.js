@@ -15,7 +15,7 @@ cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
 cfg.profiles_uri = cfg.ddoc_uri + '_view/profiles?group=true'
 cfg.couchdb = http.createClient(5984, cfg.db_host);
 
-var c = new(cradle.Connection);
+var c = new(cradle.Connection)('localhost',5984,{cached:false,raw:true});
 var db = c.database('play');
 
 var cdie = function(err, message){
@@ -43,11 +43,11 @@ db.view('cinker/profiles', {group:true}, function(err, body) {
             if(err) cdie(err, 'could not create state');
             console.log('Making state for '+watch_path);
             state._rev = res['rev'];
-            fs.watchFile(watch_path, watchers.fileCink(state, cfg));
+            fs.watchFile(watch_path, watchers.fileCink(db, state, cfg));
           }
           );
         } else cdie(err, 'could not get state');
-      } else fs.watchFile(watch_path, watchers.fileCink(state, cfg));
+      } else fs.watchFile(watch_path, watchers.fileCink(db, state, cfg));
     });
   }();}
 });
