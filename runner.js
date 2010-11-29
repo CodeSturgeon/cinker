@@ -20,7 +20,10 @@ var cdie = function(err, message){
   return null;
 }
 
-cfg.db.request('GET', cfg.profiles_uri, function(err, body) {
+var req_uri = cfg.profiles_uri+'&startkey='+JSON.stringify([cfg.profile])
+req_uri +='&endkey='+JSON.stringify([cfg.profile,{}]);
+
+cfg.db.request('GET', req_uri, function(err, body) {
   // doing this in a function for an isolated namespace
   for (ri in body['rows']) {
     var watch_path = body['rows'][ri]['key'][1];
