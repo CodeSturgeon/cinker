@@ -18,8 +18,13 @@ var fileCink = function(watch_path, cfg){
   md5.update(cfg.profile);
   md5.update(watch_path);
   var state_id = 'cinker-state-'+md5.digest('hex');
+  var memo = 0;
   return function(curr, prev){
-    console.log('firing for '+curr.mtime);
+
+    // Not sure why I have to do this, or why it works so well
+    if (curr.mtime.toString() == memo) return console.log('killing rerun');
+    memo = curr.mtime.toString();
+
     Step(
       // Get state
       function req_state(){
