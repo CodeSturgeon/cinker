@@ -3,13 +3,11 @@ var fs = require('fs');
 var Step = require('step');
 
 var cdie = function(err, message){
-  // FIXME detect and use stack trace
   if(err.stack) console.log(message+'\n'+err.stack)
   else console.log(message+' '+JSON.stringify(err));
   return 'done';
 }
 
-// state: couchdb doc
 // cfg: dict of running cfg
 var fileCink = function(watch_path, cfg){
   var state = {};
