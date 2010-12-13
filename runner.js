@@ -31,7 +31,8 @@ req.on('response', function(resp){
       var _id = watch_defs[wi][0];
       var path = watch_defs[wi][1];
       console.log('Setting up for: '+path);
-      fs.watchFile(path, watchers.cinkWatch(_id, path, cfg));
+      var cinkUp = watchers.cinkWatch(_id, path, cfg);
+      fs.watchFile(path, cinkUp);
     }
   });
 })

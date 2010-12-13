@@ -6,10 +6,8 @@ var mmh = require('./ddoc/lib/murmurhash2');
 var cinkWatch= function(_id, path, cfg){
   var memo = 0;
   var hash = '';
-  // FIXME upd_url should be encoded too
   var upd_url = '/play/_design/cinker/_update/cink_up/'+_id;
-  upd_url += '?profile='+cfg.profile+'&path='+escape(path);
-  //console.log(upd_url);
+  upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo){
