@@ -5,7 +5,10 @@ function(doc, req){
   // Check method and reject all but PUT and POST
   if (!(req.method === 'POST' || req.method === 'PUT'))
     return bail('PUT with _id or POST');
-  if (req.method === 'POST' && doc) return bail('No POST to docs');
+  if (req.method === 'POST'){
+    if (doc) return bail('No POST to docs');
+    doc = {};
+  }
   if (req.method === 'PUT' && !doc) return bail('PUT must be to exsisting docs');
 
   // Check we have profile, path and target_attr
