@@ -7,8 +7,7 @@ function(doc, req){
     return bail('PUT with _id or POST');
   if (req.method === 'POST'){
     if (doc) return bail('No POST to docs');
-    // FIXME this makes docs with a blank _id
-    doc = {};
+    doc = {_id: req.uuid};
   }
   if (req.method === 'PUT' && !doc) return bail('PUT must be to exsisting docs');
 
