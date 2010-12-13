@@ -8,9 +8,8 @@ var cinkWatch= function(_id, path, cfg){
   var hash = '';
   // FIXME upd_url should be encoded too
   var upd_url = '/play/_design/cinker/_update/cink_up/'+_id;
-  //upd_url += '?profile='+cfg.profile+'&path='+escape(path);
-  upd_url += '?profile=test1&path='+escape(path);
-  console.log(upd_url);
+  upd_url += '?profile='+cfg.profile+'&path='+escape(path);
+  //console.log(upd_url);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo){
@@ -33,9 +32,8 @@ var cinkWatch= function(_id, path, cfg){
       // send up content
       function(err, content){
         console.log('step1');
-        //console.log(content);
 
-        var new_hash = mmh.doHash(_id, content);
+        var new_hash = mmh.doHash(content, _id);
         if (new_hash === hash) return console.log('nothing to do');
         hash = new_hash;
 
@@ -56,7 +54,7 @@ var cinkWatch= function(_id, path, cfg){
           console.log(err.message);
         }
         console.log(resp.statusCode);
-        console.log(util.inspect(resp));
+        //console.log(util.inspect(resp));
         resp.on('data', function(chunk){ret += chunk;});
         resp.on('end', this)
       },

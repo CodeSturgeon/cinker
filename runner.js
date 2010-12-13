@@ -9,11 +9,14 @@ var Step = require('step');
 var cfg = require('./config');
 var watchers = require('./watchers');
 
+cfg.host = cfg.host || 'localhost'
+cfg.port = cfg.port || 5984
+
 // Compile cfg a litte for use elsewhere
 cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
 // FIXME set profile start and end keys
 cfg.profiles_uri = cfg.ddoc_uri + '_view/profiles?group=true'
-cfg.cnx = http.createClient(5984, 'localhost');
+cfg.cnx = http.createClient(cfg.port, cfg.host);
 
 var req = cfg.cnx.request(cfg.profiles_uri);
 req.on('response', function(resp){
