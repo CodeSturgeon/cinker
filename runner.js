@@ -5,7 +5,6 @@ var http = require('http');
 var util = require('util');
 
 var Step = require('step');
-var CouchClient = require('couch-client');
 
 var cfg = require('./config');
 var watchers = require('./watchers');
@@ -14,15 +13,7 @@ var watchers = require('./watchers');
 cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
 // FIXME set profile start and end keys
 cfg.profiles_uri = cfg.ddoc_uri + '_view/profiles?group=true'
-cfg.db = CouchClient('http://localhost:5984/play');
 cfg.cnx = http.createClient(5984, 'localhost');
-
-var cdie = function(err, message){
-  console.log(message+' '+JSON.stringify(err));
-  return null;
-}
-
-
 
 var req = cfg.cnx.request(cfg.profiles_uri);
 req.on('response', function(resp){
@@ -42,18 +33,3 @@ req.on('response', function(resp){
   });
 })
 req.end();
-
-/*
-var req_uri = cfg.profiles_uri+'&startkey='+JSON.stringify([cfg.profile])
-req_uri +='&endkey='+JSON.stringify([cfg.profile,{}]);
-
-cfg.db.request('GET', req_uri, function(err, body) {
-  // doing this in a function for an isolated namespace
-  for (ri in body['rows']) {
-    var watch_path = body['rows'][ri]['key'][1];
-    var watch_cfg = body['rows'][ri]['value']; // unused
-    console.log('Setting up for: '+watch_path);
-    fs.watchFile(watch_path, watchers.fileCink(watch_path, cfg));
-  }
-});
-*/
