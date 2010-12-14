@@ -5,9 +5,7 @@ var mmh = require('./ddoc/lib/murmurhash2');
 
 var cinkWatch= function(_id, path, cfg){
   var memo = 0;
-  var hash = '';
-  var upd_url = '/play/_design/cinker/_update/cink_up/'+_id;
-  upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
+  var cinker = cinkUp(_id, path, cfg);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo){
@@ -18,6 +16,15 @@ var cinkWatch= function(_id, path, cfg){
     }
     memo = curr.mtime.toString();
 
+    cinker();
+  }
+}
+
+var cinkUp = function(_id, path, cfg){
+  var hash = '';
+  var upd_url = '/play/_design/cinker/_update/cink_up/'+_id;
+  upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
+  return function(){
     console.log('go! '+path);
     var ret = '';
 
