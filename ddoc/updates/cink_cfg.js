@@ -20,6 +20,9 @@ function(doc, req){
   if (!req.query.target_attr) return bail('Must be used with a target_attr');
   var target_attr = req.query.target_attr;
 
+  var ret = {profile: profile, path: path, target_attr: target_attr,
+             doc_id: doc._id, logged: false};
+
   // Make sure we have a cfg for this profile and path
   if (!doc.cinker) doc.cinker = {cfg:{},logs:{}};
   if (!doc.cinker.cfg[profile]) doc.cinker.cfg[profile] = {};
@@ -50,7 +53,8 @@ function(doc, req){
                            prev: doc[target_attr],
                            timestamp: 'now' //FIXME
                          });
+    ret.logged = true;
   }
 
-  return [doc, {body:'\nw00ty pants\n'}];
+  return [doc, {body:JSON.stringify(ret)+'\n'}];
 }
