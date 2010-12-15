@@ -30,7 +30,7 @@ function(doc, req){
     doc.cinker.logs[profile][path].push({
         direction: 'down',
         hash: doHash(doc[target_attr],doc._id),
-        timestamp: 'now' });
+        timestamp: date2iso(new Date()) });
 
   return [null, {body:doc[target_attr]+'\n'}];
 }

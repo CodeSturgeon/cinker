@@ -70,7 +70,7 @@ function (doc, req){
                          direction: 'up',
                          hash: new_hash,
                          prev: doc[target_attr],
-                         timestamp: 'now' //FIXME
+                         timestamp: date2iso(new Date())
                        });
 
   // Overwite the the content with the new

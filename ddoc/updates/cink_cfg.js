@@ -1,5 +1,6 @@
 // !code lib/murmurhash2.js
 // !code lib/error_helper.js
+// !code lib/isodate.js
 
 function(doc, req){
   // Check method and reject all but PUT and POST
@@ -51,7 +52,7 @@ function(doc, req){
                            direction: 'up',
                            hash: new_hash,
                            prev: doc[target_attr],
-                           timestamp: 'now' //FIXME
+                           timestamp: date2iso(new Date())
                          });
     ret.logged = true;
   }
