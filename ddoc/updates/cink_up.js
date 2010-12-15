@@ -1,7 +1,8 @@
 // !code lib/murmurhash2.js
 // !code lib/error_helper.js
+// !code lib/isodate.js
 
-function (doc, req){
+function (doc, req){ try{
   //return [null, {code:405, body:JSON.stringify(req)+'\n'}];
   // *** Check if we have everything we need ***
 
@@ -77,4 +78,7 @@ function (doc, req){
   doc[target_attr] = req.body;
 
   return [doc, {body:'\nhappy pants\n'}];
+
+  // Exception catching
+  } catch(err) {return bail(err);}
 }

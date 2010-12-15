@@ -1,7 +1,8 @@
 // !code lib/murmurhash2.js
 // !code lib/error_helper.js
+// !code lib/isodate.js
 
-function(doc, req){
+function (doc, req){ try{
   // Check method and reject all but GET
   if (req.method === 'GET') return bail('GET only');
   if (!doc) return bail('Must be used against a doc');
@@ -33,4 +34,7 @@ function(doc, req){
         timestamp: date2iso(new Date()) });
 
   return [null, {body:doc[target_attr]+'\n'}];
+
+  // Exception catching
+  } catch(err) {return bail(err);}
 }

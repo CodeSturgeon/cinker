@@ -2,7 +2,7 @@
 // !code lib/error_helper.js
 // !code lib/isodate.js
 
-function(doc, req){
+function (doc, req){ try{
   // Check method and reject all but PUT and POST
   if (!(req.method === 'POST' || req.method === 'PUT'))
     return bail('PUT with _id or POST');
@@ -58,4 +58,7 @@ function(doc, req){
   }
 
   return [doc, {body:JSON.stringify(ret)+'\n'}];
+
+  // Exception catching
+  } catch(err) {return bail(err);}
 }
