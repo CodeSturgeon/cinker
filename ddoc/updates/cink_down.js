@@ -38,8 +38,9 @@ function (doc, req){ try{
         timestamp: date2iso(new Date())
     });
   }
+  else doc = null; // Skip the update
 
-  return [null, {body:ret+'\n'}];
+  return [doc, {body:JSON.stringify(ret)+'\n'}];
 
   // Exception handling
 }catch(err){return bail(err);}}
