@@ -45,7 +45,7 @@ function (doc, req){ try{
 
   // *** Check if the update should be done ***
 
-  // If the target prop isn't there yet, go right to the update
+  // If there is already a target attr there, ensure this is an update
   if (doc[target_attr]){ 
     // Make current hash now we know there is content
     var now_hash = doHash(doc[target_attr],doc._id);
@@ -79,8 +79,8 @@ function (doc, req){ try{
   // Overwite the the content with the new
   doc[target_attr] = req.body;
 
-  // FIXME Should be JSON
-  return [doc, {body:'\nhappy pants\n'}];
+  var ret = {new_hash:new_hash};
+  return [doc, {body:JSON.stringify(ret)+'\n'}];
 
   // Exception handling
   }catch(err){return bail(err);}
