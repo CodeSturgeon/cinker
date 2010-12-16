@@ -5,20 +5,22 @@
 function (doc, req){ try{
   // Check method and reject all but PUT and POST
   if (!(req.method === 'POST' || req.method === 'PUT'))
-    return bail('PUT with _id or POST');
+    throw new MethodError('PUT with _id or POST');
   if (req.method === 'POST'){
-    if (doc) return bail('No POST to docs');
+    if (doc) throw new MethodError('No POST to docs');
     doc = {_id: req.uuid};
   }
-  if (req.method === 'PUT' && !doc) return bail('PUT must be to exsisting docs');
+  if (req.method === 'PUT' && !doc)
+    throw new MethodError('PUT must be to exsisting docs');
 
   // Check we have profile, path and target_attr
   // FIXME should look for form values too
-  if (!req.query.profile) return bail('Must be used with a profile');
+  if (!req.query.profile) throw new ClientError('Must be used with a profile');
   var profile = req.query.profile;
-  if (!req.query.path) return bail('Must be used with a path');
+  if (!req.query.path) throw new ClientError('Must be used with a path');
   var path = req.query.path;
-  if (!req.query.target_attr) return bail('Must be used with a target_attr');
+  if (!req.query.target_attr)
+    throw new ClientError('Must be used with a target_attr');
   var target_attr = req.query.target_attr;
 
   var ret = {profile: profile, path: path, target_attr: target_attr,
@@ -39,10 +41,11 @@ function (doc, req){ try{
   doc.cinker.logs[profile][path] = [];
 
   // Use of a body is optional
+  // FIXME should be !== ?
   if (req.body != 'undefined'){
     // If body and target attr are both set, they must be the same
     if (doc[target_attr] && (req.body != doc[target_attr]))
-      return bail('supplied content does not match what is already there');
+      throw new ConlictError('supplied content does not match current content');
     // If target is not set, set it
     else if (!doc[target_attr]) // If there is a target attr, already the same
       doc[target_attr] = req.body;
@@ -59,6 +62,6 @@ function (doc, req){ try{
 
   return [doc, {body:JSON.stringify(ret)+'\n'}];
 
-  // Exception catching
-  } catch(err) {return bail(err);}
+  // Exception handling
+  }catch(err){return bail(err);}
 }

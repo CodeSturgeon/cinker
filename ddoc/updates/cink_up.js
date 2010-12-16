@@ -7,28 +7,30 @@ function (doc, req){ try{
   // *** Check if we have everything we need ***
 
   // Check method and reject all but PUT and POST
-  if (!(req.method === 'POST' || req.method === 'PUT')) return bail('PUT or POST');
+  if (!(req.method === 'POST' || req.method === 'PUT'))
+    throw new MethodError('PUT or POST');
 
   // Check we have profile, path and doc
-  if (!doc) return bail('Must be used against a doc');
-  if (!req.query.profile) return bail('Must be used with a profile');
+  if (!doc) throw new ClientError('Must be used against a doc');
+  if (!req.query.profile) throw new ClientError('Must be used with a profile');
   var profile = req.query.profile;
-  if (!req.query.path) return bail('Must be used with a path');
+  if (!req.query.path) throw new ClientError('Must be used with a path');
   var path = req.query.path;
 
   // Check there is a body
-  if (req.body === "undefined") return bail('Must supply a body');
+  if (req.body === "undefined") throw new ClientError('Must supply a body');
 
   // Find the cfg for this profile and path
-  if (!doc.cinker.cfg) return bail('No config found!');
-  if (!doc.cinker.cfg[profile]) return bail('No config found for this profile');
+  if (!doc.cinker.cfg) throw new ClientError('No config found!');
+  if (!doc.cinker.cfg[profile])
+    throw new ClientError('No config found for this profile');
   if (!doc.cinker.cfg[profile][path])
-    return bail('No config found for this profile+path');
+    throw new ClientError('No config found for this profile+path');
   var cfg = doc.cinker.cfg[profile][path];
 
   // FIXME target_attr really should be multi-dimensional
   if (!doc.cinker.cfg[profile][path]['target_attr'])
-    return bail('No target_attr found for this profile+path');
+    throw new ClientError('No target_attr found for this profile+path');
   var target_attr = cfg['target_attr'];
 
   // *** Setup ***
@@ -50,12 +52,12 @@ function (doc, req){ try{
 
     // Find the last hash recorded for this profile+path
     if (!doc.cinker.logs[profile].length == 0)
-      return bail('Empty logs found for profile');
+      throw new ClientError('Empty logs found for profile');
     var logs = doc.cinker.logs[profile][path];
     var last_hash = logs[logs.length-1]['hash'];
     
     // Fail if last interaction was not with the current content
-    if (now_hash != last_hash) return bail('Source needs update');
+    if (now_hash != last_hash) throw new ConflictError('Source needs update');
   }
 
   // *** Do the update ***
@@ -64,7 +66,7 @@ function (doc, req){ try{
   var new_hash = doHash(req.body,doc._id);
 
   // Bail if there if the content matches
-  if (now_hash === new_hash) return bail('No update');
+  if (now_hash === new_hash) throw new ClientError('No update');
 
   // Make log of this action
   doc.cinker.logs[profile][path].push({
@@ -77,8 +79,9 @@ function (doc, req){ try{
   // Overwite the the content with the new
   doc[target_attr] = req.body;
 
+  // FIXME Should be JSON
   return [doc, {body:'\nhappy pants\n'}];
 
-  // Exception catching
-  } catch(err) {return bail(err);}
+  // Exception handling
+  }catch(err){return bail(err);}
 }
