@@ -28,18 +28,21 @@ end
 
 Then /^the response should have a "(.*?)" attribute$/ do |attr|
   raise "_id missing\n#{@presp}" unless @presp.include? attr
+  @doc_id = @presp['doc_id'] if attr == 'doc_id'
 end
 
-Then /^the _id should correspond to a doc$/ do
-  pending # express the regexp above with the code you wish you had
+Then /^the doc_id should correspond to a doc$/ do
+  resp = http.get("#{db_uri}/#{@doc_id}")
+  raise 'doc not found' if resp.code.to_i == 404
+  @doc = JSON.parse(resp.body)
 end
 
 Then /^the doc should have a valid cinker cfg$/ do
-  pending # express the regexp above with the code you wish you had
+  raise 'cfg not found' unless @doc.include? 'cinker'
 end
 
 Then /^the doc should contain the contents of test_doc$/ do
-  pending # express the regexp above with the code you wish you had
+  raise 'test data missing' unless @doc[target_attr] == test_doc
 end
 
 When /^I put test_doc to cink_up \/ doc_id$/ do
