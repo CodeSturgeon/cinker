@@ -23,20 +23,23 @@ function (doc, req){ try{
     throw new ClientError('No target_attr found for this profile+path');
   var target_attr = cfg['target_attr'];
 
+  var ret = {logged:false, content:target_attr};
+
   // Sanitize logs
   if (!doc.cinker.logs) doc.cinker.logs = {};
   if (!doc.cinker.logs[profile]) doc.cinker.logs[profile] = {};
   if (!doc.cinker.logs[profile][path]) doc.cinker.logs[profile][path] = [];
 
-  if (req.query.log)
+  if (req.query.log){
+    ret.logged = true;
     doc.cinker.logs[profile][path].push({
         direction: 'down',
         hash: doHash(doc[target_attr],doc._id),
-        timestamp: date2iso(new Date()) });
+        timestamp: date2iso(new Date())
+    });
+  }
 
-  // FIXME Should be JSON
-  return [null, {body:doc[target_attr]+'\n'}];
+  return [null, {body:ret+'\n'}];
 
   // Exception handling
-  }catch(err){return bail(err);}
-}
+}catch(err){return bail(err);}}
