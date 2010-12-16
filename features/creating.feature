@@ -5,7 +5,7 @@ Feature: Creating new cinks
 
   Scenario: Making a cink to a new new doc
     Given a db connection
-    When I post test_doc to the cink_up
+    When I post test_doc to cink_cfg
     Then I should get a JSON response
     And the response should have a '_id' attribute
     And the _id should correspond to a doc
