@@ -66,7 +66,7 @@ function (doc, req){ try{
   var new_hash = doHash(req.body,doc._id);
 
   // Bail if there if the content matches
-  if (now_hash === new_hash) throw new ClientError('No update');
+  if (now_hash === new_hash) throw new NotModifiedError('No update');
 
   // Make log of this action
   doc.cinker.logs[profile][path].push({

@@ -22,6 +22,9 @@ function (doc, req){ try{
   if (!doc.cinker.cfg[profile][path]['target_attr'])
     throw new ClientError('No target_attr found for this profile+path');
   var target_attr = cfg['target_attr'];
+  var hash = doHash(doc[target_attr],doc._id);
+
+  if (req.hash && (req.hash == hash)) throw new NotModifiedError('no update')
 
   var ret = {logged:false, content:target_attr};
 
@@ -38,7 +41,7 @@ function (doc, req){ try{
         timestamp: date2iso(new Date())
     });
   }
-  else doc = null; // Skip the update
+  else doc = null; // Skip the update as the doc is unchanged
 
   return [doc, {body:JSON.stringify(ret)+'\n'}];
 

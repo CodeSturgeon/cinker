@@ -1,5 +1,13 @@
 // Error helper
 
+// What the client is looking for, hasn't changed
+var NotModifiedError = function(msg){
+  this.name = 'not modified';
+  this.code = 304;
+  this.no_body = true;
+  this.message = msg;
+}
+
 // Something from the client is missing or invalid
 var UserError = function(msg){
   this.name = 'user error';
@@ -23,7 +31,9 @@ var ConflictError = function(msg){
 
 // Generic exception handler for updates
 var bail = function(e){
-    var body = JSON.stringify({error:e.name, reason:e.message});
-    var code = e.code || 500;
-    return [null, { code:code, body: body+'\n' }];
+    var ret = {};
+    if(!e.no_body)
+      ret.body = JSON.stringify({error:e.name, reason:e.message})+'\n';
+    ret.code = e.code || 500;
+    return [null, ret];
 }
