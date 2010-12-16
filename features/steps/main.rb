@@ -1,27 +1,33 @@
 require 'json'
 require 'net/http'
+require 'uri'
 
 test_doc = "this is some test text"
 http = Net::HTTP.new('localhost', 5984)
 db_uri = '/play/'
-cfg_uri = "#{db_uri}_design/cinker/_update/cink_cfg/"
+cfg_uri = "#{db_uri}_design/cinker/_update/cink_cfg"
+profile = 'cucumber'
+target_attr = 'cucumber'
+path = '/cuke/test'
 
 Given /^a db connection$/ do
   thing = 'boing'
 end
 
 When /^I post test_doc to cink_cfg$/ do
-  @resp = http.post(cfg_uri, test_doc)
+  req_uri  = "#{cfg_uri}?profile=#{URI.escape(profile)}"
+  req_uri += "&target_attr=#{URI.escape(target_attr)}"
+  req_uri += "&path=#{URI.escape(path)}"
+  @resp = http.post(req_uri, test_doc)
 end
 
 Then /^I should get a JSON response$/ do
-  raise 'not a good response' if @resp.code.to_i % 200 > 99
+  #raise 'not a good response' if @resp.code.to_i % 200 > 99
   @presp = JSON.parse(@resp.body)
 end
 
-Then /^the response should have a '_id' attribute$/ do
-  puts @presp
-  raise '_id missing' unless @presp.include? '_id'
+Then /^the response should have a "(.*?)" attribute$/ do |attr|
+  raise "_id missing\n#{@presp}" unless @presp.include? attr
 end
 
 Then /^the _id should correspond to a doc$/ do

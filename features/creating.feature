@@ -7,7 +7,7 @@ Feature: Creating new cinks
     Given a db connection
     When I post test_doc to cink_cfg
     Then I should get a JSON response
-    And the response should have a '_id' attribute
+    And the response should have a "doc_id" attribute
     And the _id should correspond to a doc
     And the doc should have a valid cinker cfg
     And the doc should contain the contents of test_doc
@@ -16,7 +16,7 @@ Feature: Creating new cinks
     Given a db connection
     When I put test_doc to cink_up / doc_id
     Then I should get a JSON response
-    And the response should have a '_id' attribute
+    And the response should have a "doc_id" attribute
     And the _id should equal doc_id
     And the _id should correspond to a doc
     And the doc should have a valid cinker cfg

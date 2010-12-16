@@ -9,7 +9,7 @@ var NotModifiedError = function(msg){
 }
 
 // Something from the client is missing or invalid
-var UserError = function(msg){
+var ClientError = function(msg){
   this.name = 'user error';
   this.code = 400;
   this.message = msg;
