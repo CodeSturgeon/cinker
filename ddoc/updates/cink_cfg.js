@@ -10,8 +10,11 @@ function (doc, req){ try{
     if (doc) throw new MethodError('No POST to docs');
     doc = {_id: req.uuid};
   }
-  if (req.method === 'PUT' && !doc)
-    throw new MethodError('PUT must be to exsisting docs');
+  if (req.method === 'PUT'){
+    if (!req.id) throw new MethodError('PUT must be to named doc');
+    doc = {_id: req.id};
+  }
+
 
   // Check we have profile, path and target_attr
   // FIXME should look for form values too

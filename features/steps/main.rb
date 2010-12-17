@@ -2,7 +2,6 @@ require 'json'
 require 'net/http'
 require 'uri'
 
-test_doc = "this is some test text"
 http = Net::HTTP.new('localhost', 5984)
 db_uri = '/play/'
 cfg_uri = "#{db_uri}_design/cinker/_update/cink_cfg"
@@ -14,11 +13,23 @@ Given /^a db connection$/ do
   thing = 'boing'
 end
 
-When /^I post test_doc to cink_cfg$/ do
-  req_uri  = "#{cfg_uri}?profile=#{URI.escape(profile)}"
+Given /^a doc_id of "(.*?)"$/ do |doc_id|
+  @doc_id = doc_id
+end
+
+When /^I "(.*?)" "(.*?)" to cink_cfg$/ do |method, content|
+  @content = content
+  req_uri  = "#{cfg_uri}"
+  req_uri += "/#{@doc_id}" if method == 'put'
+  req_uri += "?profile=#{URI.escape(profile)}"
   req_uri += "&target_attr=#{URI.escape(target_attr)}"
   req_uri += "&path=#{URI.escape(path)}"
-  @resp = http.post(req_uri, test_doc)
+  # FIXME this is handled badly
+  if method == 'put'
+    @resp = http.put(req_uri, content)
+  else
+    @resp = http.post(req_uri, content)
+  end
 end
 
 Then /^I should get a JSON response$/ do
@@ -29,6 +40,10 @@ end
 Then /^the response should have a "(.*?)" attribute$/ do |attr|
   raise "_id missing\n#{@presp}" unless @presp.include? attr
   @doc_id = @presp['doc_id'] if attr == 'doc_id'
+end
+
+Then /^the response should have the same doc_id$/ do
+  raise "wrong id (#{@presp['doc_id']})" if @presp['doc_id'] != @doc_id
 end
 
 Then /^the doc_id should correspond to a doc$/ do
@@ -47,8 +62,8 @@ Then /^the doc should have a valid cinker cfg$/ do
   raise 'path logs not found' unless @doc['cinker']['logs'][profile].include? path
 end
 
-Then /^the doc should contain the contents of test_doc$/ do
-  raise 'test data missing' unless @doc[target_attr] == test_doc
+Then /^the doc should contain the content$/ do
+  raise 'test data missing' unless @doc[target_attr] == @content
 end
 
 When /^I put test_doc to cink_up \/ doc_id$/ do
