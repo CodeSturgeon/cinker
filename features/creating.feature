@@ -13,6 +13,14 @@ Feature: Creating new cinks
     And the doc should contain the contents of test_doc
 
   Scenario: Making a cink to a named new doc
+    Given a db connection
+    And a doc_id
+    When I put test_doc to cink_cfg
+    Then I should get a JSON response
+    And the response should have the same "doc_id" attribute
+    And the doc_id should correspond to a doc
+    And the doc should have a valid cinker cfg
+    And the doc should contain the contents of test_doc
 
   Scenario: Making a cink to a new new doc with inital content
 
