@@ -38,7 +38,13 @@ Then /^the doc_id should correspond to a doc$/ do
 end
 
 Then /^the doc should have a valid cinker cfg$/ do
-  raise 'cfg not found' unless @doc.include? 'cinker'
+  raise 'cinker not found' unless @doc.include? 'cinker'
+  raise 'cfg not found' unless @doc['cinker'].include? 'cfg'
+  raise 'profile cfg not found' unless @doc['cinker']['cfg'].include? profile
+  raise 'path cfg not found' unless @doc['cinker']['cfg'][profile].include? path
+  raise 'logs not found' unless @doc['cinker'].include? 'logs'
+  raise 'profile logs not found' unless @doc['cinker']['logs'].include? profile
+  raise 'path logs not found' unless @doc['cinker']['logs'][profile].include? path
 end
 
 Then /^the doc should contain the contents of test_doc$/ do
