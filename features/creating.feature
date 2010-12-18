@@ -3,8 +3,12 @@ Feature: Creating new cinks
   So I can cink files later
   As an admin
 
+  Background:
+    Given a profile of "cuketest"
+    And a path of "/cuke/test"
+    And a target_attr of "cuke_test"
+
   Scenario: Making a cink to a new doc
-    Given a db connection
     When I "post" "cooktest" to cink_cfg
     Then I should get a JSON response
     And the response should have a "doc_id" attribute
@@ -13,8 +17,7 @@ Feature: Creating new cinks
     And the doc should contain the content
 
   Scenario: Making a cink to a new named doc
-    Given a db connection
-    And a doc_id of "cuke_test"
+    Given a doc_id of "cuke_test"
     When I "put" "jimjam" to cink_cfg
     Then I should get a JSON response
     And the response should have a "doc_id" attribute
