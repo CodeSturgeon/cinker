@@ -33,13 +33,13 @@ var ConflictError = function(msg){
 var bail = function(e){
     var ret = {code: e.code || 500};
     var body = {
-          code: ret.code,
-          error: e.name,
-          reason: e.message
-    };
+        code: ret.code,
+        error: e.name,
+        reason: e.message
+      };
     if (e.stack) body.stack = e.stack;
     if (e.lineNumber) body.lineNumber = e.lineNumber;
     //if(!e.no_body) disabled due to couchdb update return bug
-      ret.body = JSON.stringify(body)+'\n';
+      ret.body = JSON.stringify(body, null, 2)+'\n';
     return [null, ret];
 }

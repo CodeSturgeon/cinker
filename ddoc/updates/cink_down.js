@@ -43,7 +43,7 @@ function (doc, req){ try{
   else doc = null; // Skip the update as the doc is unchanged
 
   ret.code = 200;
-  return [doc, {body:JSON.stringify(ret)+'\n'}];
+  return [doc, {body:JSON.stringify(ret, null, 2)+'\n'}];
 
   // Exception handling
 }catch(err){return bail(err);}}

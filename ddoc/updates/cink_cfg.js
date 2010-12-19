@@ -63,8 +63,7 @@ function (doc, req){ try{
 
   // FIXME this is wrong... code should be 201 for new docs
   ret.code = 200;
-  log(doc);
-  return [doc, {body:JSON.stringify(ret)+'\n'}];
+  return [doc, {body:JSON.stringify(ret, null, 2)+'\n'}];
 
   // Exception handling
   }catch(err){return bail(err);}

@@ -79,7 +79,7 @@ function (doc, req){ try{
 
   var ret = {new_hash:new_hash, doc_id: doc._id};
   ret.code = 200;
-  return [doc, {body:JSON.stringify(ret)+'\n'}];
+  return [doc, {body:JSON.stringify(ret, null, 2)+'\n'}];
 
   // Exception handling
   }catch(err){return bail(err);}
