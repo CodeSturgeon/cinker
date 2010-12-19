@@ -79,7 +79,8 @@ function (doc, req){ try{
   // Overwite the the content with the new
   doc[target_attr] = req.body;
 
-  var ret = {new_hash:new_hash};
+  var ret = {new_hash:new_hash, doc_id: doc._id};
+  ret.code = 200;
   return [doc, {body:JSON.stringify(ret)+'\n'}];
 
   // Exception handling

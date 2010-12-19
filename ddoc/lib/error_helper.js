@@ -32,8 +32,13 @@ var ConflictError = function(msg){
 // Generic exception handler for updates
 var bail = function(e){
     var ret = {};
-    if(!e.no_body)
-      ret.body = JSON.stringify({error:e.name, reason:e.message})+'\n';
-    ret.code = e.code || 500;
+    //if(!e.no_body) disabled due to couchdb update return bug
+      ret.body = JSON.stringify({
+          code: e.code,
+          error:e.name,
+          reason:e.message
+        })+'\n';
+    //ret.code = e.code || 500;
+    log(ret);
     return [null, ret];
 }

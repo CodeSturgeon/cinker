@@ -17,9 +17,19 @@ Given /^a target_attr of "([^"]*)"$/ do |target_attr|
   @target_attr = target_attr
 end
 
-When /^I "(.*?)" "(.*?)" to cink_cfg$/ do |method, content|
+Given /^there is a document called "([^"]*)"$/ do |doc_id|
+  resp = $couch.get("/#{$db_name}/#{doc_id}")
+  raise "did not get the expected 200: #{resp}" unless resp.code.to_i == 200
+end
+
+Then /^the response code should be "([^"]*)"$/ do |code|
+  resp_code = @presp['code'].to_s
+  raise "wrong code: #{resp_code} != #{code}" unless resp_code == code
+end
+
+When /^I "(.*?)" "(.*?)" to "(.*?)"$/ do |method, content, update|
   @content = content
-  req_uri  = "/#{$db_name}/_design/cinker/_update/cink_cfg"
+  req_uri  = "/#{$db_name}/_design/cinker/_update/#{update}"
   req_uri += "/#{@doc_id}" if method == 'put'
   req_uri += "?profile=#{URI.escape(@profile)}"
   req_uri += "&target_attr=#{URI.escape(@target_attr)}"
@@ -32,9 +42,9 @@ When /^I "(.*?)" "(.*?)" to cink_cfg$/ do |method, content|
   end
 end
 
-Then /^I should get a JSON response$/ do
-  #raise 'not a good response' if @resp.code.to_i % 200 > 99
+Then /^I should get a valid response$/ do
   @presp = JSON.parse(@resp.body)
+  raise 'code missing' unless @presp.include? 'code'
 end
 
 Then /^the response should have a "(.*?)" attribute$/ do |attr|

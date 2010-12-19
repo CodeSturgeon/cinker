@@ -12,7 +12,7 @@ function (doc, req){ try{
   }
   if (req.method === 'PUT'){
     if (!req.id) throw new MethodError('PUT must be to named doc');
-    doc = {_id: req.id};
+    if (!doc) doc = {_id: req.id};
   }
 
 
@@ -48,7 +48,7 @@ function (doc, req){ try{
   if (req.body != 'undefined'){
     // If body and target attr are both set, they must be the same
     if (doc[target_attr] && (req.body != doc[target_attr]))
-      throw new ConlictError('supplied content does not match current content');
+      throw new ConflictError('supplied content does not match current content');
     // If target is not set, set it
     else if (!doc[target_attr]) // If there is a target attr, already the same
       doc[target_attr] = req.body;
@@ -63,6 +63,9 @@ function (doc, req){ try{
     ret.logged = true;
   }
 
+  // FIXME this is wrong... code should be 201 for new docs
+  ret.code = 200;
+  log(doc);
   return [doc, {body:JSON.stringify(ret)+'\n'}];
 
   // Exception handling

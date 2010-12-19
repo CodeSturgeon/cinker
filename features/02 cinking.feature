@@ -8,7 +8,7 @@ Feature: Cinking local documents with couchdb properties
 
   Scenario: Cinking a local update when the doc has been altered
     Given a doc_id of "cuke_test"
-    When I "put" "powpow" to cink_cfg
+    When I "put" "powpow" to "cink_up"
     Then I should get a valid response
     And the response should have a "doc_id" attribute
     And the response should have the same doc_id
@@ -18,6 +18,6 @@ Feature: Cinking local documents with couchdb properties
 
   Scenario: Cinking a local update when the doc has not been altered
     Given a doc_id of "cuke_test"
-    When I "put" "powpow" to cink_cfg
+    When I "put" "powpow" to "cink_up"
     Then I should get a valid response
     And the response code should be "304"
