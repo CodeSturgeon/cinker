@@ -25,6 +25,7 @@ req.on('response', function(resp){
   resp.on('data',function(chunk){ret += chunk;});
   resp.on('end',function(){
     var view = JSON.parse(ret);
+    // FIXME detect empty views
     watch_defs = view['rows'][0]['value'];
     console.log(util.inspect(watch_defs));
     for (wi in watch_defs) {

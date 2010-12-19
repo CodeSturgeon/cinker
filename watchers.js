@@ -3,9 +3,9 @@ var util = require('util');
 var Step = require('step');
 var mmh = require('./ddoc/lib/murmurhash2');
 
-var cinkWatch= function(_id, path, cfg){
+var cinkWatch= function(doc_id, path, cfg){
   var memo = 0;
-  var cinker = cinkUp(_id, path, cfg);
+  var cinker = cinkUp(doc_id, path, cfg);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo){
@@ -20,9 +20,9 @@ var cinkWatch= function(_id, path, cfg){
   }
 }
 
-var cinkUp = function(_id, path, cfg){
+var cinkUp = function(doc_id, path, cfg){
   var hash = '';
-  var upd_url = '/play/_design/cinker/_update/cink_up/'+_id;
+  var upd_url = '/play/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
     console.log('go! '+path);
@@ -38,7 +38,7 @@ var cinkUp = function(_id, path, cfg){
       function(err, content){
         console.log('step1');
 
-        var new_hash = mmh.doHash(content, _id);
+        var new_hash = mmh.doHash(content, doc_id);
         if (new_hash === hash) return console.log('nothing to do');
         hash = new_hash;
 
