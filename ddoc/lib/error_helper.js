@@ -31,14 +31,15 @@ var ConflictError = function(msg){
 
 // Generic exception handler for updates
 var bail = function(e){
-    var ret = {};
+    var ret = {code: e.code || 500};
+    var body = {
+          code: ret.code,
+          error: e.name,
+          reason: e.message
+    };
+    if (e.stack) body.stack = e.stack;
+    if (e.lineNumber) body.lineNumber = e.lineNumber;
     //if(!e.no_body) disabled due to couchdb update return bug
-      ret.body = JSON.stringify({
-          code: e.code,
-          error:e.name,
-          reason:e.message
-        })+'\n';
-    //ret.code = e.code || 500;
-    log(ret);
+      ret.body = JSON.stringify(body)+'\n';
     return [null, ret];
 }

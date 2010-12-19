@@ -30,18 +30,16 @@ function (doc, req){ try{
              doc_id: doc._id, logged: false};
 
   // Make sure we have a cfg for this profile and path
-  if (!doc.cinker) doc.cinker = {cfg:{},logs:{}};
-  if (!doc.cinker.cfg[profile]) doc.cinker.cfg[profile] = {};
-  if (!doc.cinker.cfg[profile][path]) doc.cinker.cfg[profile][path] = {};
+  if (!doc.cinker) doc.cinker = {};
+  if (!doc.cinker[profile]) doc.cinker[profile] = {};
+  if (!doc.cinker[profile][path]) doc.cinker[profile][path] = {cfg: {}, logs: {}};
+  if (!doc.cinker[profile][path]['cfg']) doc.cinker[profile][path]['cfg'] = {};
 
   // Set the target attr
-  doc.cinker.cfg[profile][path]['target_attr'] = target_attr;
-
-  // Make sure we have a log for this profile
-  if (!doc.cinker.logs[profile]) doc.cinker.logs[profile] = {};
+  doc.cinker[profile][path]['cfg']['target_attr'] = target_attr;
 
   // Clear the history if set and init if not
-  doc.cinker.logs[profile][path] = [];
+  doc.cinker[profile][path]['logs'] = [];
 
   // Use of a body is optional
   // FIXME should be !== ?
@@ -54,7 +52,7 @@ function (doc, req){ try{
       doc[target_attr] = req.body;
     // Make the hash of the update
     var new_hash = doHash(doc[target_attr],doc._id);
-    doc.cinker.logs[profile][path].push({
+    doc.cinker[profile][path]['logs'].push({
                            direction: 'up',
                            hash: new_hash,
                            prev: doc[target_attr],

@@ -13,32 +13,30 @@ function (doc, req){ try{
   // Check we have profile, path and doc
   if (!doc) throw new ClientError('Must be used against a doc');
   if (!req.query.profile) throw new ClientError('Must be used with a profile');
-  var profile = req.query.profile;
   if (!req.query.path) throw new ClientError('Must be used with a path');
+  var profile = req.query.profile;
   var path = req.query.path;
 
   // Check there is a body
   if (req.body === "undefined") throw new ClientError('Must supply a body');
 
   // Find the cfg for this profile and path
-  if (!doc.cinker.cfg) throw new ClientError('No config found!');
-  if (!doc.cinker.cfg[profile])
+  if (!doc.cinker) throw new ClientError('No config found!');
+  if (!doc.cinker[profile])
     throw new ClientError('No config found for this profile');
-  if (!doc.cinker.cfg[profile][path])
+  if (!doc.cinker[profile][path])
     throw new ClientError('No config found for this profile+path');
-  var cfg = doc.cinker.cfg[profile][path];
-
-  // FIXME target_attr really should be multi-dimensional
-  if (!doc.cinker.cfg[profile][path]['target_attr'])
+  if (!doc.cinker[profile][path]['cfg'])
+    throw new ClientError('No config found for this profile+path');
+  if (!doc.cinker[profile][path]['cfg']['target_attr'])
     throw new ClientError('No target_attr found for this profile+path');
-  var target_attr = cfg['target_attr'];
 
   // *** Setup ***
 
   // Sanitize logs
-  if (!doc.cinker.logs) doc.cinker.logs = {};
-  if (!doc.cinker.logs[profile]) doc.cinker.logs[profile] = {};
-  if (!doc.cinker.logs[profile][path]) doc.cinker.logs[profile][path] = [];
+  //if (!doc.cinker[profile][path]['logs']) doc.cinker[profile][path]['logs'] = [];
+
+  var target_attr = doc.cinker[profile][path]['cfg']['target_attr'];
 
   // Init current hash
   var now_hash;
@@ -51,9 +49,9 @@ function (doc, req){ try{
     var now_hash = doHash(doc[target_attr],doc._id);
 
     // Find the last hash recorded for this profile+path
-    if (!doc.cinker.logs[profile].length == 0)
+    if (doc.cinker[profile][path]['logs'].length == 0)
       throw new ClientError('Empty logs found for profile');
-    var logs = doc.cinker.logs[profile][path];
+    var logs = doc.cinker[profile][path]['logs'];
     var last_hash = logs[logs.length-1]['hash'];
     
     // Fail if last interaction was not with the current content
@@ -69,7 +67,7 @@ function (doc, req){ try{
   if (now_hash === new_hash) throw new NotModifiedError('No update');
 
   // Make log of this action
-  doc.cinker.logs[profile][path].push({
+  doc.cinker[profile][path]['logs'].push({
                          direction: 'up',
                          hash: new_hash,
                          prev: doc[target_attr],

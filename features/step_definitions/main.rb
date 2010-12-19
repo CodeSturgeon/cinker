@@ -44,7 +44,7 @@ end
 
 Then /^I should get a valid response$/ do
   @presp = JSON.parse(@resp.body)
-  raise 'code missing' unless @presp.include? 'code'
+  raise "code missing #{@presp}" unless @presp.include? 'code'
 end
 
 Then /^the response should have a "(.*?)" attribute$/ do |attr|
@@ -64,14 +64,10 @@ end
 
 Then /^the doc should have a valid cinker cfg$/ do
   raise 'cinker not found' unless @doc.include? 'cinker'
-  raise 'cfg not found' unless @doc['cinker'].include? 'cfg'
-  raise 'profile cfg not found' unless @doc['cinker']['cfg'].include? @profile
-  raise 'path cfg not found' unless @doc['cinker']['cfg'][@profile].include? @path
-  raise 'logs not found' unless @doc['cinker'].include? 'logs'
-  raise 'profile logs not found' unless @doc['cinker']['logs'].include? @profile
-  unless @doc['cinker']['logs'][@profile].include? @path
-    raise 'path logs not found' 
-  end
+  raise 'profile not found' unless @doc['cinker'].include? @profile
+  raise 'profile+path not found' unless @doc['cinker'][@profile].include? @path
+  raise 'p+p cfg not found' unless @doc['cinker'][@profile][@path].include? 'cfg'
+  raise 'p+p logs not found' unless @doc['cinker'][@profile][@path].include? 'logs'
 end
 
 Then /^the doc should contain the content$/ do
