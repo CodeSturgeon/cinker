@@ -3,8 +3,8 @@
 // !code lib/isodate.js
 
 function (doc, req){ try{
-  // Check method and reject all but GET
-  if (req.method === 'GET') throw new MethodError('GET only');
+  // Check method and reject all but POST
+  if (req.method != 'POST') throw new MethodError('POST only');
   if (!doc) throw new ClientError('Must be used against a doc');
   if (!req.query.profile) throw new ClientError('Must be used with a profile');
   var profile = req.query.profile;
