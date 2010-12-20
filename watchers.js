@@ -20,9 +20,72 @@ var cinkWatch= function(doc_id, path, cfg){
   }
 }
 
+var cinkAutoAdd = function(watch_paths, cfg){
+  watch_regex = new RegExp(cfg.autoadd.pattern);
+  return function(){
+    //console.log('scanning');
+    fs.readdir(cfg.autoadd.path, function(err, files){
+      //console.log(files);
+      for(fi in files){
+        var fn = files[fi];
+        var path = cfg.autoadd.path+fn;
+        if (fn[0] === '.') continue;
+        // FIXME should be '!==' ?
+        if (watch_paths.indexOf(path) != -1) continue;
+        if (!watch_regex.test(fn)) continue;
+        cinkNew(path, cfg);
+        watch_paths.push(path);
+      }
+    });
+  }
+}
+
+exports.cinkAutoAdd = cinkAutoAdd;
+
+var cinkNew = function(path, cfg){
+  console.log('making for: '+path);
+  Step(
+    // read content
+    function(){
+      fs.readFile(path, this);
+    },
+    // send request
+    function(err, content){
+      var cfg_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_cfg';
+      cfg_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
+      cfg_url += '&target_attr='+escape(cfg.autoadd.target_attr);
+
+      var req = cfg.cnx.request('POST', cfg_url,
+          ['Content-Length: '+content.length]);
+    
+      req.write(content);
+
+      // the response event has no err, so we have to inject one for Step
+      var callback = this;
+      req.on('response', function(resp){ callback(undefined, resp); });
+      req.end(content);
+    },
+    // process result
+    function(err, resp){
+      if (err) console.log(err.message);
+      //console.log(resp);
+      var ret = '';
+      resp.on('data', function(chunk){ret += chunk;});
+      resp.on('end', function(){
+        console.log('Setting watch for: '+path);
+        var _id = JSON.parse(ret)['doc_id'];
+        var cinkUp = cinkWatch(_id, path, cfg);
+        fs.watchFile(path, cinkUp);
+      });
+    }
+  );
+}
+exports.cinkNew = cinkNew;
+
+// Factory function
 var cinkUp = function(doc_id, path, cfg){
   var hash = '';
-  var upd_url = '/play/_design/cinker/_update/cink_up/'+doc_id;
+  var upd_url = '/'+cfg.db_name+'/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
     console.log('go! '+path);
