@@ -85,7 +85,7 @@ exports.cinkNew = cinkNew;
 // Factory function
 var cinkUp = function(doc_id, path, cfg){
   var hash = '';
-  var upd_url = '/'+cfg.db_name+'/_design/cinker/_update/cink_up/'+doc_id;
+  var upd_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
     console.log('go! '+path);
