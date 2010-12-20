@@ -9,8 +9,8 @@ var Step = require('step');
 var cfg = require('./config');
 var watchers = require('./watchers');
 
-cfg.host = cfg.host || 'localhost'
-cfg.port = cfg.port || 5984
+cfg.host = cfg.host || 'localhost';
+cfg.port = cfg.port || 5984;
 
 // Compile cfg a litte for use elsewhere
 cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
@@ -37,8 +37,7 @@ req.on('response', function(resp){
       fs.watchFile(path, cinkUp);
       watched_paths.push(path);
     }
-    if (cfg.autoadd)
-      setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+    if (cfg.autoadd) setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
   });
 })
 req.end();
