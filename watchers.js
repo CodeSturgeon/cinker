@@ -47,7 +47,7 @@ var cinkNew = function(path, cfg){
   Step(
     // read content
     function(){
-      fs.readFile(path, this);
+      fs.readFile(path, 'utf-8', this);
     },
     // send request
     function(err, content){
@@ -55,11 +55,11 @@ var cinkNew = function(path, cfg){
       cfg_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
       cfg_url += '&target_attr='+escape(cfg.autoadd.target_attr);
 
-      var req = cfg.cnx.request('POST', cfg_url,
-          ['Content-Length: '+content.length]);
+      var req = cfg.cnx.request('POST', cfg_url,{
+              'Content-Type': 'text/plain; charset=utf-8',
+              'Content-Length': content.length
+            });
     
-      req.write(content);
-
       // the response event has no err, so we have to inject one for Step
       var callback = this;
       req.on('response', function(resp){ callback(undefined, resp); });
