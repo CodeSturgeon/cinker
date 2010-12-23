@@ -37,7 +37,10 @@ req.on('response', function(resp){
       fs.watchFile(path, cinkUp);
       watched_paths.push(path);
     }
-    if (cfg.autoadd) setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+    if (cfg.autoadd){
+      watchers.cinkAutoAdd(watched_paths,cfg);
+      setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+    }
   });
 })
 req.end();
