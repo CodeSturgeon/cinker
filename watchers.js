@@ -85,8 +85,6 @@ var cinkUp = function(doc_id, path, cfg){
   var upd_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
-    var ret = '';
-
     Step(
       // get new content
       function(){
@@ -113,6 +111,7 @@ var cinkUp = function(doc_id, path, cfg){
           util.log(err.message);
           return;
         }
+        var ret = '';
         resp.on('data', function(chunk){ret += chunk;});
         resp.on('end', function(){
           if (resp.statusCode !== 201){
