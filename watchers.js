@@ -9,9 +9,7 @@ var cinkWatch= function(doc_id, path, cfg){
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo){
-      console.log('killing rerun');
-      //console.log(util.inspect(curr));
-      //console.log(util.inspect(prev));
+      //util.log('killing rerun');
       return;
     }
     memo = curr.mtime.toString();
@@ -20,18 +18,17 @@ var cinkWatch= function(doc_id, path, cfg){
   }
 }
 
+exports.cinkWatch = cinkWatch;
+
 var cinkAutoAdd = function(watch_paths, cfg){
   watch_regex = new RegExp(cfg.autoadd.pattern);
   return function(){
-    //console.log('scanning');
     fs.readdir(cfg.autoadd.path, function(err, files){
-      //console.log(files);
       for(fi in files){
         var fn = files[fi];
         var path = cfg.autoadd.path+fn;
         if (fn[0] === '.') continue;
-        // FIXME should be '!==' ?
-        if (watch_paths.indexOf(path) != -1) continue;
+        if (watch_paths.indexOf(path) !== -1) continue;
         if (!watch_regex.test(fn)) continue;
         cinkNew(path, cfg);
         watch_paths.push(path);
@@ -43,7 +40,7 @@ var cinkAutoAdd = function(watch_paths, cfg){
 exports.cinkAutoAdd = cinkAutoAdd;
 
 var cinkNew = function(path, cfg){
-  console.log('making for: '+path);
+  util.log('making for: '+path);
   Step(
     // read content
     function(){
@@ -67,12 +64,12 @@ var cinkNew = function(path, cfg){
     },
     // process result
     function(err, resp){
-      if (err) console.log(err.message);
-      //console.log(resp);
+      if (err) util.log(err.message);
+      //util.log(resp);
       var ret = '';
       resp.on('data', function(chunk){ret += chunk;});
       resp.on('end', function(){
-        console.log('Setting watch for: '+path);
+        util.log('Setting watch for: '+path);
         var _id = JSON.parse(ret)['doc_id'];
         var cinkUp = cinkWatch(_id, path, cfg);
         fs.watchFile(path, cinkUp);
@@ -88,21 +85,17 @@ var cinkUp = function(doc_id, path, cfg){
   var upd_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
-    console.log('go! '+path);
     var ret = '';
 
     Step(
       // get new content
       function(){
-        console.log('step0');
         fs.readFile(path, 'utf8', this);
       },
       // send up content
       function(err, content){
-        console.log('step1');
-
         var new_hash = mmh.doHash(content, doc_id);
-        if (new_hash === hash) return console.log('nothing to do');
+        if (new_hash === hash) return util.log('nothing to do');
         hash = new_hash;
 
         var req = cfg.cnx.request('PUT',upd_url);
@@ -114,26 +107,23 @@ var cinkUp = function(doc_id, path, cfg){
       },
       // process return
       function(err, resp){
-        console.log('step2');
-        // Check for errors resp.statusCode
         if (err) {
-          console.log('poo');
-          console.log(util.inspect(err));
-          console.log(err.message);
+          util.log('error with upload!');
+          util.log(util.inspect(err));
+          util.log(err.message);
+          return;
         }
-        console.log(resp.statusCode);
-        //console.log(util.inspect(resp));
         resp.on('data', function(chunk){ret += chunk;});
-        resp.on('end', this)
-      },
-      // deal with output
-      function(err){
-        console.log('step3');
-        if (err) console.log(err.message);
-        console.log(ret);
+        resp.on('end', function(){
+          if (resp.statusCode !== 201){
+            util.log('bad update code '+resp.statusCode);
+            util.log(upd_url);
+            util.log(ret);
+            return;
+          }
+          util.log('uploaded: '+path);
+        });
       }
     );
   }
 }
-
-exports.cinkWatch = cinkWatch;
