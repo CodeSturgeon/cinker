@@ -6,41 +6,50 @@ var util = require('util');
 
 var Step = require('step');
 
-var cfg = require('./config');
 var watchers = require('./watchers');
 
-cfg.host = cfg.host || 'localhost';
-cfg.port = cfg.port || 5984;
+var launchWatchers = function(cfg_path){
+  var cfg = require(cfg_path);
 
-// Compile cfg a litte for use elsewhere
-cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
-// FIXME set profile start and end keys
-cfg.profiles_uri = cfg.ddoc_uri + '_view/profiles';
-cfg.cnx = http.createClient(cfg.port, cfg.host);
+  cfg.host = cfg.host || 'localhost';
+  cfg.port = cfg.port || 5984;
 
-var req = cfg.cnx.request(cfg.profiles_uri);
-req.on('response', function(resp){
-  //console.log(util.inspect(resp));
-  var ret = '';
-  resp.on('data',function(chunk){ret += chunk;});
-  resp.on('end',function(){
-    var watched_paths = [];
-    var view = JSON.parse(ret);
-    // FIXME detect empty views
-    watch_defs = view['rows'];
-    //console.log(util.inspect(watch_defs));
-    for (wi in watch_defs) {
-      var _id = watch_defs[wi]['value'][0];
-      var path = watch_defs[wi]['value'][1];
-      console.log('Setting watch for: '+path);
-      var cinkUp = watchers.cinkWatch(_id, path, cfg);
-      fs.watchFile(path, cinkUp);
-      watched_paths.push(path);
-    }
-    if (cfg.autoadd){
-      watchers.cinkAutoAdd(watched_paths,cfg);
-      setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
-    }
-  });
-})
-req.end();
+  // Compile cfg a litte for use elsewhere
+  cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
+  // FIXME set profile start and end keys
+  cfg.profiles_uri = cfg.ddoc_uri + '_view/profiles';
+  cfg.cnx = http.createClient(cfg.port, cfg.host);
+
+  // FIXME validate connection
+
+  var req = cfg.cnx.request(cfg.profiles_uri);
+  req.on('response', function(resp){
+    // FIXME 404 checking
+    //console.log(util.inspect(resp));
+    var ret = '';
+    resp.on('data',function(chunk){ret += chunk;});
+    resp.on('end',function(){
+      var watched_paths = [];
+      var view = JSON.parse(ret);
+      // FIXME detect empty views
+      watch_defs = view['rows'];
+      //console.log(util.inspect(watch_defs));
+      for (wi in watch_defs) {
+        var _id = watch_defs[wi]['value'][0];
+        var path = watch_defs[wi]['value'][1];
+        console.log('Setting watch for: '+path);
+        var cinkUp = watchers.cinkWatch(_id, path, cfg);
+        fs.watchFile(path, cinkUp);
+        watched_paths.push(path);
+      }
+      if (cfg.autoadd){
+        watchers.cinkAutoAdd(watched_paths,cfg);
+        setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+      }
+    });
+  })
+  req.end();
+}
+
+if (!process.argv[2]) throw 'missing config arg :(';
+launchWatchers(process.argv[2]);
