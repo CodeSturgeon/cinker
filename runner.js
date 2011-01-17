@@ -8,6 +8,9 @@ var Step = require('step');
 
 var watchers = require('./watchers');
 
+// Keeps track of the watchers already setup
+var watched_paths = [];
+
 var launchWatchers = function(cfg_path){
   var cfg = require(cfg_path);
 
@@ -35,12 +38,12 @@ var launchWatchers = function(cfg_path){
     var ret = '';
     resp.on('data',function(chunk){ret += chunk;});
     resp.on('end',function(){
-      var watched_paths = [];
       var view = JSON.parse(ret);
       watch_defs = view['rows'];
       for (wi in watch_defs) {
         var _id = watch_defs[wi]['value'][0];
         var path = watch_defs[wi]['value'][1];
+        if (watched_paths.indexOf(path) !== -1) continue;
         util.log('Setting watch for: '+path);
         var cinkUp = watchers.cinkWatch(_id, path, cfg);
         fs.watchFile(path, cinkUp);
@@ -56,4 +59,5 @@ var launchWatchers = function(cfg_path){
 }
 
 if (!process.argv[2]) throw 'missing config arg :(';
-launchWatchers(process.argv[2]);
+var configs = process.argv.slice(2,99);
+for (ci in configs) launchWatchers(configs[ci]);
