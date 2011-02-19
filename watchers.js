@@ -114,7 +114,7 @@ var cinkUp = function(doc_id, path, cfg){
         var ret = '';
         resp.on('data', function(chunk){ret += chunk;});
         resp.on('end', function(){
-          if (resp.statusCode !== 201 || resp.statusCode !== 200){
+          if (resp.statusCode !== 201 && resp.statusCode !== 200){
             util.log('bad update code '+resp.statusCode);
             util.log(upd_url);
             util.log(ret);
