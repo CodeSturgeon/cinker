@@ -60,4 +60,4 @@ var launchWatchers = function(cfg_path){
 
 if (!process.argv[2]) throw 'missing config arg :(';
 var configs = process.argv.slice(2,99);
-for (ci in configs) launchWatchers(configs[ci]);
+for (ci in configs) launchWatchers(fs.realpathSync(configs[ci]));
