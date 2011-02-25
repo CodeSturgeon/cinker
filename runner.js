@@ -2,11 +2,12 @@
 // Command script
 var fs = require('fs');
 var http = require('http');
-var util = require('util');
-
-var Step = require('step');
+var cli = require('cli');
 
 var watchers = require('./watchers');
+
+var args = [];
+var options = {};
 
 // Keeps track of the watchers already setup
 var watched_paths = [];
@@ -30,9 +31,9 @@ var launchWatchers = function(cfg_path){
   var req = cfg.cnx.request(cfg.profiles_uri);
   req.on('response', function(resp){
     if (resp.statusCode != 200){
-      util.log(resp.statusCode+' response when looking for profile view:');
-      util.log(cfg.profiles_uri);
-      util.log('exiting');
+      cli.error(resp.statusCode+' response when looking for profile view:');
+      cli.error(cfg.profiles_uri);
+      cli.error('exiting');
       return;
     }
     var ret = '';
@@ -40,11 +41,11 @@ var launchWatchers = function(cfg_path){
     resp.on('end',function(){
       var view = JSON.parse(ret);
       watch_defs = view['rows'];
-      for (wi in watch_defs) {
+      for (var wi in watch_defs) {
         var _id = watch_defs[wi]['value'][0];
         var path = watch_defs[wi]['value'][1];
         if (watched_paths.indexOf(path) !== -1) continue;
-        util.log('Setting watch for: '+path);
+        cli.info('Setting watch for: '+path);
         var cinkUp = watchers.cinkWatch(_id, path, cfg);
         fs.watchFile(path, cinkUp);
         watched_paths.push(path);
@@ -54,10 +55,16 @@ var launchWatchers = function(cfg_path){
         setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
       }
     });
-  })
+  });
   req.end();
 }
 
-if (!process.argv[2]) throw 'missing config arg :(';
-var configs = process.argv.slice(2,99);
-for (ci in configs) launchWatchers(fs.realpathSync(configs[ci]));
+cli.enable('daemon', 'status');
+cli.parse({
+  ham:  ['e', 'and eggs']
+});
+
+cli.main(function(args, options){
+  if (args.length === 0) cli.error('No configs supplied... exiting');
+  for (var ai in args) launchWatchers(fs.realpathSync(args[ai]));
+});

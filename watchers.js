@@ -2,18 +2,16 @@ var fs = require('fs');
 var util = require('util');
 var Step = require('step');
 var mmh = require('./ddoc/lib/murmurhash2');
+var cli = require('cli');
 
+// Callback factory for the dir changed function
 var cinkWatch= function(doc_id, path, cfg){
   var memo = 0;
   var cinker = cinkUp(doc_id, path, cfg);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
-    if (curr.mtime.toString() == memo){
-      //util.log('killing rerun');
-      return;
-    }
+    if (curr.mtime.toString() == memo) return;
     memo = curr.mtime.toString();
-
     cinker();
   }
 }
@@ -40,7 +38,7 @@ var cinkAutoAdd = function(watch_paths, cfg){
 exports.cinkAutoAdd = cinkAutoAdd;
 
 var cinkNew = function(path, cfg){
-  util.log('making for: '+path);
+  cli.info('making for: '+path);
   Step(
     // read content
     function(){
@@ -64,12 +62,11 @@ var cinkNew = function(path, cfg){
     },
     // process result
     function(err, resp){
-      if (err) util.log(err.message);
-      //util.log(resp);
+      if (err) cli.error(err.message);
       var ret = '';
       resp.on('data', function(chunk){ret += chunk;});
       resp.on('end', function(){
-        util.log('Setting watch for: '+path);
+        cli.info('Setting watch for: '+path);
         var _id = JSON.parse(ret)['doc_id'];
         var cinkUp = cinkWatch(_id, path, cfg);
         fs.watchFile(path, cinkUp);
@@ -93,7 +90,7 @@ var cinkUp = function(doc_id, path, cfg){
       // send up content
       function(err, content){
         var new_hash = mmh.doHash(content, doc_id);
-        if (new_hash === hash) return util.log('nothing to do');
+        if (new_hash === hash) return cli.info('nothing to do');
         hash = new_hash;
 
         var req = cfg.cnx.request('PUT',upd_url);
@@ -106,26 +103,26 @@ var cinkUp = function(doc_id, path, cfg){
       // process return
       function(err, resp){
         if (err) {
-          util.log('error with upload!');
-          util.log(util.inspect(err));
-          util.log(err.message);
+          cli.error('error with upload!');
+          cli.error(util.inspect(err));
+          cli.error(err.message);
           return;
         }
         var ret = '';
         resp.on('data', function(chunk){ret += chunk;});
         resp.on('end', function(){
           if (resp.statusCode !== 201 && resp.statusCode !== 200){
-            util.log('bad update code '+resp.statusCode);
-            util.log(upd_url);
-            util.log(ret);
+            cli.error('bad update code '+resp.statusCode);
+            cli.error(upd_url);
+            cli.error(ret);
             return;
           }
           var pret = JSON.parse(ret);
           if (pret.code === 304){
-            util.log('no update: '+path);
+            cli.info('no update: '+path);
             return;
           }
-          util.log('uploaded: '+path);
+          cli.info('uploaded: '+path);
         });
       }
     );
