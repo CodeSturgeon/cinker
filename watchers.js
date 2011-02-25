@@ -4,7 +4,7 @@ var Step = require('step');
 var mmh = require('./ddoc/lib/murmurhash2');
 var cli = require('cli');
 
-// Callback factory for the dir changed function
+// Callback factory for the file changed function
 var cinkWatch= function(doc_id, path, cfg){
   var memo = 0;
   var cinker = cinkUp(doc_id, path, cfg);
@@ -18,6 +18,7 @@ var cinkWatch= function(doc_id, path, cfg){
 
 exports.cinkWatch = cinkWatch;
 
+// Callback factory for dir changed function
 var cinkAutoAdd = function(watch_paths, cfg){
   watch_regex = new RegExp(cfg.autoadd.pattern);
   return function(){
