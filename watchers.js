@@ -38,8 +38,9 @@ var cinkAutoAdd = function(watch_paths, cfg){
 
 exports.cinkAutoAdd = cinkAutoAdd;
 
+// Create new couchdb doc for housing a new file
 var cinkNew = function(path, cfg){
-  cli.info('making for: '+path);
+  cli.info('new file: '+path);
   Step(
     // read content
     function(){
@@ -78,6 +79,7 @@ var cinkNew = function(path, cfg){
 exports.cinkNew = cinkNew;
 
 // Factory function
+// Returned function uploads it's doc when called
 var cinkUp = function(doc_id, path, cfg){
   var hash = '';
   var upd_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_up/'+doc_id;
@@ -129,3 +131,4 @@ var cinkUp = function(doc_id, path, cfg){
     );
   }
 }
+exports.cinkUp = cinkUp

@@ -6,19 +6,17 @@ var cli = require('cli');
 
 var watchers = require('./watchers');
 
-var args = [];
-var options = {};
-
 // Keeps track of the watchers already setup
 var watched_paths = [];
 
-var launchWatchers = function(cfg_path){
+var cfgLauncher = function(cfg_path){
+  cli.info('cfg: '+cfg_path);
   var cfg = require(cfg_path);
 
   cfg.host = cfg.host || 'localhost';
   cfg.port = cfg.port || 5984;
 
-  // Compile cfg a litte for use elsewhere
+  // Compile cfg a little for use elsewhere
   cfg.ddoc_uri = '/'+cfg.db_name+'/_design/cinker/';
   cfg.profiles_uri = [cfg.ddoc_uri, '_view/profiles',
                       '?startkey="', escape(cfg.profile), '"',
@@ -45,14 +43,21 @@ var launchWatchers = function(cfg_path){
         var _id = watch_defs[wi]['value'][0];
         var path = watch_defs[wi]['value'][1];
         if (watched_paths.indexOf(path) !== -1) continue;
-        cli.info('Setting watch for: '+path);
-        var cinkUp = watchers.cinkWatch(_id, path, cfg);
-        fs.watchFile(path, cinkUp);
         watched_paths.push(path);
+        if (cli.options.oneshot) {
+          //cli.error(_id+' '+path);
+          //watchers.cinkUp(_id,path,cfg)({mtime:0});
+          continue;
+        }
+        var cinkUp = watchers.cinkWatch(_id, path, cfg);
+        cli.debug('setting watch for: '+path);
+        fs.watchFile(path, cinkUp);
       }
       if (cfg.autoadd){
         watchers.cinkAutoAdd(watched_paths,cfg);
-        setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+        if (!cli.options.oneshot){
+          setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
+        }
       }
     });
   });
@@ -61,10 +66,10 @@ var launchWatchers = function(cfg_path){
 
 cli.enable('daemon', 'status');
 cli.parse({
-  ham:  ['e', 'and eggs']
+  oneshot:      ['o', 'dont watch']
 });
 
-cli.main(function(args, options){
+cli.main(function(args){
   if (args.length === 0) cli.error('No configs supplied... exiting');
-  for (var ai in args) launchWatchers(fs.realpathSync(args[ai]));
+  for (var ai in args) cfgLauncher(fs.realpathSync(args[ai]));
 });
