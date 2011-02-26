@@ -22,21 +22,21 @@ function (doc, req){ try{
 
   // Find the cfg for this profile and path
   if (!doc.cinker) throw new ClientError('No config found!');
-  if (!doc.cinker[profile])
+  if (!doc.cinker.profiles[profile])
     throw new ClientError('No config found for this profile');
-  if (!doc.cinker[profile][path])
+  if (!doc.cinker.profiles[profile][path])
     throw new ClientError('No config found for this profile+path');
-  if (!doc.cinker[profile][path]['cfg'])
+  if (!doc.cinker.profiles[profile][path]['cfg'])
     throw new ClientError('No config found for this profile+path');
-  if (!doc.cinker[profile][path]['cfg']['target_attr'])
+  if (!doc.cinker.profiles[profile][path]['cfg']['target_attr'])
     throw new ClientError('No target_attr found for this profile+path');
 
   // *** Setup ***
 
   // Sanitize logs
-  //if (!doc.cinker[profile][path]['logs']) doc.cinker[profile][path]['logs'] = [];
+  //if (!doc.cinker.profiles[profile][path]['logs']) doc.cinker.profiles[profile][path]['logs'] = [];
 
-  var target_attr = doc.cinker[profile][path]['cfg']['target_attr'];
+  var target_attr = doc.cinker.profiles[profile][path]['cfg']['target_attr'];
 
   // Init current hash
   var now_hash;
@@ -49,9 +49,9 @@ function (doc, req){ try{
     now_hash = doHash(doc[target_attr],doc._id);
 
     // Find the last hash recorded for this profile+path
-    if (doc.cinker[profile][path]['logs'].length === 0)
+    if (doc.cinker.profiles[profile][path]['logs'].length === 0)
       throw new ClientError('Empty logs found for profile');
-    var logs = doc.cinker[profile][path]['logs'];
+    var logs = doc.cinker.profiles[profile][path]['logs'];
     var last_hash = logs[logs.length-1]['hash'];
     
     // Fail if last interaction was not with the current content
@@ -71,7 +71,7 @@ function (doc, req){ try{
 
   // Make log of this action
   var ts = date2iso(new Date());
-  doc.cinker[profile][path]['logs'].push({
+  doc.cinker.profiles[profile][path]['logs'].push({
       direction: 'up',
       hash: new_hash,
       timestamp: ts

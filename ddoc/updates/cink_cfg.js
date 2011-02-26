@@ -31,15 +31,16 @@ function (doc, req){ try{
 
   // Make sure we have a cfg for this profile and path
   if (!doc.cinker) doc.cinker = {};
-  if (!doc.cinker[profile]) doc.cinker[profile] = {};
-  if (!doc.cinker[profile][path]) doc.cinker[profile][path] = {cfg: {}, logs: {}};
-  if (!doc.cinker[profile][path]['cfg']) doc.cinker[profile][path]['cfg'] = {};
+  if (!doc.cinker.profiles) doc.cinker.profiles = {};
+  if (!doc.cinker.profiles[profile]) doc.cinker.profiles[profile] = {};
+  if (!doc.cinker.profiles[profile][path]) doc.cinker.profiles[profile][path] = {cfg: {}, logs: {}};
+  if (!doc.cinker.profiles[profile][path]['cfg']) doc.cinker.profiles[profile][path]['cfg'] = {};
 
   // Set the target attr
-  doc.cinker[profile][path]['cfg']['target_attr'] = target_attr;
+  doc.cinker.profiles[profile][path]['cfg']['target_attr'] = target_attr;
 
   // Clear the history if set and init if not
-  doc.cinker[profile][path]['logs'] = [];
+  doc.cinker.profiles[profile][path]['logs'] = [];
 
   // Make sure we have logs for this attr
   if(!doc.cinker.logs) doc.cinker.logs={};
@@ -62,7 +63,7 @@ function (doc, req){ try{
     var new_hash = doHash(doc[target_attr],doc._id);
     // Logs
     var ts = date2iso(new Date());
-    doc.cinker[profile][path]['logs'].push({
+    doc.cinker.profiles[profile][path]['logs'].push({
         direction: 'up',
         hash: new_hash,
         timestamp: ts
@@ -77,6 +78,7 @@ function (doc, req){ try{
         profile: profile,
         path: path
     });
+    ret.hash = new_hash;
     ret.logged = true;
   }
 

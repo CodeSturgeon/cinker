@@ -38,23 +38,23 @@ var cfgLauncher = function(cfg_path){
     resp.on('data',function(chunk){ret += chunk;});
     resp.on('end',function(){
       var view = JSON.parse(ret);
-      watch_defs = view['rows'];
+      watch_defs = view.rows;
       for (var wi in watch_defs) {
-        var _id = watch_defs[wi]['value'][0];
-        var path = watch_defs[wi]['value'][1];
+        var _id = watch_defs[wi].value[0];
+        var path = watch_defs[wi].value[1];
+        var hash = watch_defs[wi].value[2];
         if (watched_paths.indexOf(path) !== -1) continue;
         watched_paths.push(path);
         if (cli.options.oneshot) {
-          //cli.error(_id+' '+path);
-          //watchers.cinkUp(_id,path,cfg)({mtime:0});
+          watchers.cinkUp(_id,path,hash,cfg)({mtime:0});
           continue;
         }
-        var cinkUp = watchers.cinkWatch(_id, path, cfg);
+        var cinkUp = watchers.cinkWatch(_id, path, hash, cfg);
         cli.debug('setting watch for: '+path);
         fs.watchFile(path, cinkUp);
       }
       if (cfg.autoadd){
-        watchers.cinkAutoAdd(watched_paths,cfg);
+        watchers.cinkAutoAdd(watched_paths,cfg)();
         if (!cli.options.oneshot){
           setInterval(watchers.cinkAutoAdd(watched_paths,cfg), 10000);
         }

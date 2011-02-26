@@ -5,9 +5,9 @@ var mmh = require('./ddoc/lib/murmurhash2');
 var cli = require('cli');
 
 // Callback factory for the file changed function
-var cinkWatch= function(doc_id, path, cfg){
+var cinkWatch= function(doc_id, path, hash, cfg){
   var memo = 0;
-  var cinker = cinkUp(doc_id, path, cfg);
+  var cinker = cinkUp(doc_id, path, hash, cfg);
   return function(curr, prev){
     // check that the mtime is updated, not just the atime
     if (curr.mtime.toString() == memo) return;
@@ -68,9 +68,11 @@ var cinkNew = function(path, cfg){
       var ret = '';
       resp.on('data', function(chunk){ret += chunk;});
       resp.on('end', function(){
+        if (cli.options.oneshot) return;
         cli.info('Setting watch for: '+path);
-        var _id = JSON.parse(ret)['doc_id'];
-        var cinkUp = cinkWatch(_id, path, cfg);
+        var _id = JSON.parse(ret).doc_id;
+        var hash = JSON.parse(ret).hash;
+        var cinkUp = cinkWatch(_id, path, hash, cfg);
         fs.watchFile(path, cinkUp);
       });
     }
@@ -80,8 +82,7 @@ exports.cinkNew = cinkNew;
 
 // Factory function
 // Returned function uploads it's doc when called
-var cinkUp = function(doc_id, path, cfg){
-  var hash = '';
+var cinkUp = function(doc_id, path, hash, cfg){
   var upd_url = '/'+escape(cfg.db_name)+'/_design/cinker/_update/cink_up/'+doc_id;
   upd_url += '?profile='+escape(cfg.profile)+'&path='+escape(path);
   return function(){
@@ -93,7 +94,7 @@ var cinkUp = function(doc_id, path, cfg){
       // send up content
       function(err, content){
         var new_hash = mmh.doHash(content, doc_id);
-        if (new_hash === hash) return cli.info('nothing to do');
+        if (new_hash === hash) {cli.debug('nothing to do'); return;}
         hash = new_hash;
 
         var req = cfg.cnx.request('PUT',upd_url);

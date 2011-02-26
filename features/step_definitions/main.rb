@@ -64,10 +64,10 @@ end
 
 Then /^the doc should have a valid cinker cfg$/ do
   raise 'cinker not found' unless @doc.include? 'cinker'
-  raise 'profile not found' unless @doc['cinker'].include? @profile
-  raise 'profile+path not found' unless @doc['cinker'][@profile].include? @path
-  raise 'p+p cfg not found' unless @doc['cinker'][@profile][@path].include? 'cfg'
-  raise 'p+p logs not found' unless @doc['cinker'][@profile][@path].include? 'logs'
+  raise 'profile not found' unless @doc['cinker']['profiles'].include? @profile
+  raise 'profile+path not found' unless @doc['cinker']['profiles'][@profile].include? @path
+  raise 'p+p cfg not found' unless @doc['cinker']['profiles'][@profile][@path].include? 'cfg'
+  raise 'p+p logs not found' unless @doc['cinker']['profiles'][@profile][@path].include? 'logs'
 end
 
 Then /^the doc should contain the content$/ do
