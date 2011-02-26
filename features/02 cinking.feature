@@ -1,4 +1,4 @@
-Feature: Cinking local documents with couchdb properties
+Feature: Cinking configured document
 
   Background:
     Given there is a document called "cuke_test"

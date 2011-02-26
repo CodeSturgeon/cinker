@@ -13,7 +13,7 @@ end
 
 # Create DB
 resp = $couch.put(db_uri,'')
-raise "strage db create response: #{resp}" unless resp.code.to_i == 201
+raise "strange db create response: #{resp}" unless resp.code.to_i == 201
 
 # push ddoc
 ret = %x{couchapp push ddoc #{$db_name} 2>&1}

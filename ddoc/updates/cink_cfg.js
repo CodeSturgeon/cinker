@@ -41,6 +41,13 @@ function (doc, req){ try{
   // Clear the history if set and init if not
   doc.cinker[profile][path]['logs'] = [];
 
+  // Make sure we have logs for this attr
+  if(!doc.cinker.logs) doc.cinker.logs={};
+  if(!doc.cinker.logs[target_attr]) doc.cinker.logs[target_attr]=[];
+  
+  // Make sure we have hash store
+  if(!doc.cinker.hashes) doc.cinker.hashes = {};
+
   // Use of a body is optional
   // FIXME should be !== ?
   if (req.body != 'undefined'){
@@ -48,16 +55,28 @@ function (doc, req){ try{
     if (doc[target_attr] && (req.body != doc[target_attr]))
       throw new ConflictError('supplied content does not match current content');
     // If target is not set, set it
-    else if (!doc[target_attr]) // If there is a target attr, already the same
+    else if (!doc[target_attr]) {// If there is a target attr, already the same
       doc[target_attr] = req.body;
+    }
     // Make the hash of the update
     var new_hash = doHash(doc[target_attr],doc._id);
+    // Logs
+    var ts = date2iso(new Date());
     doc.cinker[profile][path]['logs'].push({
-                           direction: 'up',
-                           hash: new_hash,
-                           prev: doc[target_attr],
-                           timestamp: date2iso(new Date())
-                         });
+        direction: 'up',
+        hash: new_hash,
+        timestamp: ts
+    });
+    doc.cinker.hashes[new_hash] = {
+        timestamp: ts,
+        body: doc[target_attr]
+    };
+    doc.cinker.logs[target_attr].push({
+        timestamp: ts,
+        hash: new_hash,
+        profile: profile,
+        path: path
+    });
     ret.logged = true;
   }
 

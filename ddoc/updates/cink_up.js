@@ -46,10 +46,10 @@ function (doc, req){ try{
   // If there is already a target attr there, ensure this is an update
   if (doc[target_attr]){ 
     // Make current hash now we know there is content
-    var now_hash = doHash(doc[target_attr],doc._id);
+    now_hash = doHash(doc[target_attr],doc._id);
 
     // Find the last hash recorded for this profile+path
-    if (doc.cinker[profile][path]['logs'].length == 0)
+    if (doc.cinker[profile][path]['logs'].length === 0)
       throw new ClientError('Empty logs found for profile');
     var logs = doc.cinker[profile][path]['logs'];
     var last_hash = logs[logs.length-1]['hash'];
@@ -66,16 +66,26 @@ function (doc, req){ try{
   // Bail if there if the content matches
   if (now_hash === new_hash) throw new NotModifiedError('No update');
 
-  // Make log of this action
-  doc.cinker[profile][path]['logs'].push({
-                         direction: 'up',
-                         hash: new_hash,
-                         prev: doc[target_attr],
-                         timestamp: date2iso(new Date())
-                       });
-
   // Overwite the the content with the new
   doc[target_attr] = req.body;
+
+  // Make log of this action
+  var ts = date2iso(new Date());
+  doc.cinker[profile][path]['logs'].push({
+      direction: 'up',
+      hash: new_hash,
+      timestamp: ts
+  });
+  doc.cinker.hashes[new_hash] = {
+      timestamp: ts,
+      body: doc[target_attr]
+  };
+  doc.cinker.logs[target_attr].push({
+      timestamp: ts,
+      hash: new_hash,
+      profile: profile,
+      path: path
+  });
 
   var ret = {new_hash:new_hash, doc_id: doc._id};
   ret.code = 200;
