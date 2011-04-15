@@ -1,0 +1,32 @@
+h1. General idea
+
+Keep text files on disk synced with attrs on a couch document. The majority of the work is done by the design document, which implements update functions that provide the API. There is a small nodeJS application that uses the API to send up changes and add new files.
+
+h1. Installing
+
+Not much to it really, if you have node and couchdb already, your pretty much all set.
+
+# Install couchdb + couchapp
+# Install node
+# Install the ddoc in your desired couch database @couchapp push ddoc mydb@
+
+h1. Configuring
+
+Configuration is handled by CommonJS modules specified on the command line.
+
+Vars...
+# host
+# port
+# db_name
+# profile
+# autoadd
+## path
+## target_attr
+## pattern
+
+Example...
+<pre>
+
+exports.profile = 'default';
+exports.db_name = 'my_db';
+</pre>
