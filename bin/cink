@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+// Command script
+var cli = require('cli');
+var realpathSync = require('fs').realpathSync;
+var cfgLauncher = require('../lib/launcher').cfgLauncher;
+
+cli.enable('daemon', 'status');
+
+cli.parse({
+  oneshot:      ['o', 'dont watch']
+});
+
+cli.main(function(args){
+  if (args.length === 0) cli.error('No configs supplied... exiting');
+  for (var ai in args) cfgLauncher(realpathSync(args[ai]));
+});
+
+// vim:filetype=javascript:

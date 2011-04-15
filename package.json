@@ -2,5 +2,5 @@
 	"name" : "cinker",
 	"version" : "v0.0.1",
 	"description" : "manage loading files in to CouchDB",
-	"bin" : { "cink" : "./runner.js" }
+	"bin" : { "cink" : "./bin/cink" }
 }
